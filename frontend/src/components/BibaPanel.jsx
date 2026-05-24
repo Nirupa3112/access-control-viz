@@ -2,7 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import Lattice from './Lattice'
 
-const API = 'http://localhost:8000'
+const API = 'https://access-control-viz.onrender.com'
 const BIBA_LEVELS = ['High', 'Medium', 'Low']
 const BIBA_COLORS = { 'High':'#7c3aed', 'Medium':'#7F77DD', 'Low':'#AFA9EC' }
 const DEFAULT_ENTITIES = [

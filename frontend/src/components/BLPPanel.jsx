@@ -2,7 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import Lattice from './Lattice'
 
-const API = 'http://localhost:8000'
+const API = 'https://access-control-viz.onrender.com'
 const BLP_LEVELS = ['Top Secret', 'Secret', 'Confidential', 'Unclassified']
 const BLP_COLORS = {
   'Top Secret':'#ef4444',
