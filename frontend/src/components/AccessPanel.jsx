@@ -83,14 +83,14 @@ export default function AccessPanel({
       <div className="space-y-6">
         <header>
           <h2 className="text-2xl font-semibold tracking-tight text-white">{title}</h2>
-          <p className="mt-1 max-w-2xl text-sm text-slate-400">{description}</p>
+          <p className="mt-1 max-w-2xl text-sm text-slate-300">{description}</p>
         </header>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {levels.map((lvl) => (
               <div key={lvl} className="card-padded flex items-center justify-between">
                 <div>
-                  <div className="text-xs font-medium text-slate-400">{lvl}</div>
+                  <div className="text-xs font-medium text-slate-300">{lvl}</div>
                   <div className="text-2xl font-semibold text-white">{stats[lvl]}</div>
                 </div>
                 <span
@@ -117,7 +117,7 @@ export default function AccessPanel({
             <div className={`card-padded flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
               <div>
                 <p className="text-sm font-semibold text-slate-200">{rulesDescription.title}</p>
-                <p className="mt-1 text-sm text-slate-400">{rulesDescription.body}</p>
+                <p className="mt-1 text-sm text-slate-300">{rulesDescription.body}</p>
               </div>
               <div className={`rounded-xl px-3 py-2 text-xs font-medium ${accentSoft}`}>
                 {rulesDescription.badge}
@@ -146,7 +146,7 @@ export default function AccessPanel({
             <div className="card-padded space-y-3">
               <p className="section-label">Request Access</p>
               <div>
-                <label className="mb-1 block text-xs text-slate-400">Subject</label>
+                <label className="mb-1 block text-xs text-slate-300">Subject</label>
                 <select
                     value={subjectId}
                     onChange={(e) => setSubjectId(+e.target.value)}
@@ -158,7 +158,7 @@ export default function AccessPanel({
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs text-slate-400">Object</label>
+                <label className="mb-1 block text-xs text-slate-300">Object</label>
                 <select
                     value={objectId}
                     onChange={(e) => setObjectId(+e.target.value)}
@@ -196,7 +196,7 @@ export default function AccessPanel({
                     {result.allowed ? "Access granted" : "Access denied"}
                   </p>
                   <p className="text-slate-300">{result.subject} → {result.op} → {result.object}</p>
-                  <p className="mt-1 text-xs text-slate-400">{result.reason}</p>
+                  <p className="mt-1 text-xs text-slate-300">{result.reason}</p>
                 </div>
             )}
 
@@ -229,7 +229,7 @@ export default function AccessPanel({
             <div className="card-padded">
               <p className="section-label mb-3">Access Log</p>
               <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
-                {log.length === 0 && <p className="text-xs text-slate-500">No requests yet.</p>}
+                {log.length === 0 && <p className="text-xs text-slate-300">No requests yet.</p>}
                 {log.map((l, i) => (
                     <div
                         key={i}
@@ -240,7 +240,7 @@ export default function AccessPanel({
                         }`}
                     >
                   <span>
-                    <span className="text-slate-500">{l.ts}</span>{" "}
+                    <span className="text-slate-300">{l.ts}</span>{" "}
                     <span className="font-medium text-slate-200">{l.subject}</span> {l.op}s{" "}
                     <span className="font-medium text-slate-200">{l.object}</span>
                   </span>

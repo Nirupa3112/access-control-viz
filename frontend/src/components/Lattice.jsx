@@ -22,7 +22,7 @@ export default function Lattice({ levels, entities, onMove, colors }) {
                   style={{ background: colors[lvl] }}
                 />
                 <div>
-                  <div className="text-sm font-medium text-slate-800">{lvl}</div>
+                  <div className="text-sm font-medium text-slate-200">{lvl}</div>
                   <div className="text-xs text-slate-400">Level {levels.length - i}</div>
                 </div>
               </div>

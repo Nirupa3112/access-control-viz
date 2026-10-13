@@ -28,7 +28,7 @@ export default function App() {
                   <h1 className="text-lg font-semibold tracking-tight text-white sm:text-xl">
                     Access Control Models
                   </h1>
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-300">
                     Interactive lattice visualization
                   </p>
                 </div>
@@ -47,7 +47,7 @@ export default function App() {
                       className={`tab-pill flex-1 sm:flex-none ${tab === t.id ? "tab-pill-active" : "tab-pill-inactive"}`}
                   >
                     <span>{t.label}</span>
-                    <span className={`hidden sm:inline text-xs ${tab === t.id ? "text-indigo-200" : "text-slate-500"}`}>
+                    <span className={`hidden sm:inline text-xs ${tab === t.id ? "text-indigo-200" : "text-slate-300"}`}>
                   · {t.hint}
                 </span>
                   </button>
