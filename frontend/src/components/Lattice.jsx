@@ -41,7 +41,7 @@ export default function Lattice({ levels, entities, onMove, colors }) {
                     className="inline-flex cursor-grab select-none items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm
                       transition hover:scale-[1.03] active:cursor-grabbing"
                     style={{
-                      background: colors[lvl] + "18",
+                      background: colors[lvl] + "33",
                       color: colors[lvl],
                       border: `1.5px ${ent.type === "object" ? "dashed" : "solid"} ${colors[lvl]}`,
                     }}
