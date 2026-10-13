@@ -14,11 +14,12 @@ app.add_middleware(
 )
 
 class AccessRequest(BaseModel):
-    model:         str
+    model: str
     subject_level: str
-    object_level:  str
-    operation:     str
-    rules:         Optional[dict] = {}
+    object_level: str
+    operation: str
+    rules: Optional[dict] = {}
+    graph: Optional[dict] = {}   # <-- add this
 
 @app.get("/")
 def root():
