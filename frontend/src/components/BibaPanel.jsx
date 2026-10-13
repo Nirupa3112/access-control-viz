@@ -1,7 +1,7 @@
 import AccessPanel from "./AccessPanel";
 
 const BIBA_LEVELS = ["High", "Medium", "Low"];
-const BIBA_COLORS = { High: "#334155", Medium: "#4f46e5", Low: "#6366f1" };
+const BIBA_COLORS = { High: "#f43f5e", Medium: "#8b5cf6", Low: "#06b6d4" };
 const DEFAULT_ENTITIES = [
   { id: 1, name: "Auditor", type: "subject", level: "High" },
   { id: 2, name: "Analyst", type: "subject", level: "Medium" },

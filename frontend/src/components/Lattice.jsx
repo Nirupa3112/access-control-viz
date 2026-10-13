@@ -45,9 +45,11 @@ export default function Lattice({ levels, entities, onMove, colors }) {
                       transition hover:scale-[1.03] active:cursor-grabbing"
                                         style={{
                                             // Increased opacity from 18 to 33 so the background is visible against dark grey
-                                            background: colors[lvl] + "33",
-                                            color: colors[lvl],
+                                            background: colors[lvl] + "40",
+                                            // color: colors[lvl],
+                                            color: "#ffffff",
                                             border: `1.5px ${ent.type === "object" ? "dashed" : "solid"} ${colors[lvl]}`,
+                                            boxShadow: `0 2px 10px ${colors[lvl]}20`
                                         }}
                                     >
                                         <EntityIcon type={ent.type} />

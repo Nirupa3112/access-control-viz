@@ -5,7 +5,7 @@ const BLP_COLORS = {
   "Top Secret": "#ef4444",
   Secret: "#3b82f6",
   Confidential: "#22c55e",
-  Unclassified: "#94a3b8",
+  Unclassified: "#38bdf8",
 };
 const DEFAULT_ENTITIES = [
   { id: 1, name: "Alice", type: "subject", level: "Top Secret" },
