@@ -1,4 +1,4 @@
-export default function Lattice({ levels, entities, onMove, colors }) {
+export default function Lattice({ levels, entities, onMove, onDelete, colors }) {
     function handleDrop(e, level) {
         const id = +e.dataTransfer.getData("text/plain");
         onMove(id, level);
@@ -23,7 +23,6 @@ export default function Lattice({ levels, entities, onMove, colors }) {
                                     style={{ background: colors[lvl] }}
                                 />
                                 <div>
-                                    {/* Brightened from text-slate-800 to text-slate-200 */}
                                     <div className="text-sm font-medium text-slate-200">{lvl}</div>
                                     <div className="text-xs text-slate-400">Level {levels.length - i}</div>
                                 </div>
@@ -41,12 +40,10 @@ export default function Lattice({ levels, entities, onMove, colors }) {
                                         key={ent.id}
                                         draggable
                                         onDragStart={(e) => e.dataTransfer.setData("text/plain", ent.id)}
-                                        className="inline-flex cursor-grab select-none items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium shadow-sm
-                      transition hover:scale-[1.03] active:cursor-grabbing"
+                                        className="group/pill inline-flex cursor-grab select-none items-center gap-1.5 rounded-full pl-3 pr-1.5 py-1.5 text-sm font-medium shadow-md
+                      transition hover:scale-[1.05] active:cursor-grabbing hover:shadow-lg"
                                         style={{
-                                            // Increased opacity from 18 to 33 so the background is visible against dark grey
                                             background: colors[lvl] + "40",
-                                            // color: colors[lvl],
                                             color: "#ffffff",
                                             border: `1.5px ${ent.type === "object" ? "dashed" : "solid"} ${colors[lvl]}`,
                                             boxShadow: `0 2px 10px ${colors[lvl]}20`
@@ -54,6 +51,18 @@ export default function Lattice({ levels, entities, onMove, colors }) {
                                     >
                                         <EntityIcon type={ent.type} />
                                         <span className="max-w-[8rem] truncate sm:max-w-xs">{ent.name}</span>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevent drag start
+                                                onDelete(ent.id);
+                                            }}
+                                            className="ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold opacity-40 transition hover:bg-black/30 hover:opacity-100 hover:text-rose-300"
+                                            title={`Delete ${ent.name}`}
+                                        >
+                                            ×
+                                        </button>
                                     </div>
                                 ))}
 

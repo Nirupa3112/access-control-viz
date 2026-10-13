@@ -29,9 +29,8 @@ export default function AccessPanel({
   const [newName, setNewName] = useState("");
   const [newLevel, setNewLevel] = useState(levels[Math.floor(levels.length / 2)]);
   const [newType, setNewType] = useState("subject");
-  const [showMatrix, setShowMatrix] = useState(false); // New state for matrix
+  const [showMatrix, setShowMatrix] = useState(false);
 
-  // Dark mode friendly accent classes
   const accentRing = accent === "blue" ? "focus:ring-blue-500/30" : "focus:ring-indigo-500/30";
   const accentBorder = accent === "blue" ? "focus:border-blue-500" : "focus:border-indigo-500";
   const accentBtn =
@@ -44,8 +43,18 @@ export default function AccessPanel({
   const accentCheckbox = accent === "blue" ? "accent-blue-500" : "accent-indigo-500";
 
   async function checkAccess(op) {
+    // Guard clause: Don't crash if no subjects or objects exist
+    if (!subjectId || !objectId) {
+      setResult({ allowed: false, reason: "Please create at least one subject and one object." });
+      return;
+    }
+
     const subject = entities.find((e) => e.id === subjectId);
     const object = entities.find((e) => e.id === objectId);
+
+    // Guard clause: Don't crash if selections are invalid
+    if (!subject || !object) return;
+
     try {
       const { data } = await axios.post(`${API}/check-access`, {
         model,
@@ -69,6 +78,23 @@ export default function AccessPanel({
       { id: Date.now(), name: newName || "New", type: newType, level: newLevel },
     ]);
     setNewName("");
+  }
+
+  // NEW: Delete Entity Function
+  function deleteEntity(id) {
+    const updated = entities.filter((e) => e.id !== id);
+    setEntities(updated);
+
+    // If we deleted the selected subject, reset to the first available one
+    if (subjectId === id) {
+      const remainingSubjects = updated.filter((e) => e.type === "subject");
+      setSubjectId(remainingSubjects[0]?.id ?? null);
+    }
+    // If we deleted the selected object, reset to the first available one
+    if (objectId === id) {
+      const remainingObjects = updated.filter((e) => e.type === "object");
+      setObjectId(remainingObjects[0]?.id ?? null);
+    }
   }
 
   const subjects = entities.filter((e) => e.type === "subject");
@@ -122,9 +148,9 @@ export default function AccessPanel({
                 onMove={(id, level) =>
                     setEntities((es) => es.map((e) => (e.id === id ? { ...e, level } : e)))
                 }
+                onDelete={deleteEntity} // Pass the delete function down
             />
 
-            {/* Render the Matrix below the Lattice */}
             {showMatrix && (
                 <MatrixView
                     model={model}
@@ -169,10 +195,12 @@ export default function AccessPanel({
               <div>
                 <label className="mb-1 block text-xs text-slate-300">Subject</label>
                 <select
-                    value={subjectId}
+                    value={subjectId || ""}
                     onChange={(e) => setSubjectId(+e.target.value)}
                     className={`input-field ${accentBorder} ${accentRing}`}
+                    disabled={subjects.length === 0}
                 >
+                  {subjects.length === 0 && <option value="">No subjects available</option>}
                   {subjects.map((s) => (
                       <option key={s.id} value={s.id}>{s.name} ({s.level})</option>
                   ))}
@@ -181,23 +209,25 @@ export default function AccessPanel({
               <div>
                 <label className="mb-1 block text-xs text-slate-300">Object</label>
                 <select
-                    value={objectId}
+                    value={objectId || ""}
                     onChange={(e) => setObjectId(+e.target.value)}
                     className={`input-field ${accentBorder} ${accentRing}`}
+                    disabled={objects.length === 0}
                 >
+                  {objects.length === 0 && <option value="">No objects available</option>}
                   {objects.map((o) => (
                       <option key={o.id} value={o.id}>{o.name} ({o.level})</option>
                   ))}
                 </select>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => checkAccess("read")} className={accentBtn}>
+                <button onClick={() => checkAccess("read")} className={accentBtn} disabled={subjects.length === 0 || objects.length === 0}>
                   <ReadIcon /> Read
                 </button>
-                <button onClick={() => checkAccess("write")} className="btn-secondary">
+                <button onClick={() => checkAccess("write")} className="btn-secondary" disabled={subjects.length === 0 || objects.length === 0}>
                   <WriteIcon /> Write
                 </button>
-                <button onClick={() => checkAccess("execute")} className="btn-secondary">
+                <button onClick={() => checkAccess("execute")} className="btn-secondary" disabled={subjects.length === 0 || objects.length === 0}>
                   <ExecIcon /> Execute
                 </button>
               </div>
