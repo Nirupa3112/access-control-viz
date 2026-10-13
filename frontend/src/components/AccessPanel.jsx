@@ -42,8 +42,21 @@ export default function AccessPanel({
       : "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20";
   const accentCheckbox = accent === "blue" ? "accent-blue-500" : "accent-indigo-500";
 
+  // --- Unified Logging Helper ---
+  function addLog(action, details, allowed = null) {
+    setLog((prev) => [
+      {
+        id: Date.now() + Math.random(),
+        ts: new Date().toLocaleTimeString(),
+        action,
+        details,
+        allowed,
+      },
+      ...prev,
+    ]);
+  }
+
   async function checkAccess(op) {
-    // Guard clause: Don't crash if no subjects or objects exist
     if (!subjectId || !objectId) {
       setResult({ allowed: false, reason: "Please create at least one subject and one object." });
       return;
@@ -51,8 +64,6 @@ export default function AccessPanel({
 
     const subject = entities.find((e) => e.id === subjectId);
     const object = entities.find((e) => e.id === objectId);
-
-    // Guard clause: Don't crash if selections are invalid
     if (!subject || !object) return;
 
     try {
@@ -64,8 +75,12 @@ export default function AccessPanel({
         rules,
       });
       setResult({ ...data, subject: subject.name, object: object.name, op });
-      setLog((l) =>
-          [{ ...data, subject: subject.name, object: object.name, op, ts: new Date().toLocaleTimeString() }, ...l].slice(0, 50),
+
+      // Log the access request
+      addLog(
+          "ACCESS_REQUEST",
+          `${subject.name} → ${op.toUpperCase()} → ${object.name}`,
+          data.allowed
       );
     } catch {
       setResult({ allowed: false, reason: "Backend offline — check the API connection." });
@@ -73,28 +88,65 @@ export default function AccessPanel({
   }
 
   function addEntity() {
+    const name = newName || "New";
     setEntities((es) => [
       ...es,
-      { id: Date.now(), name: newName || "New", type: newType, level: newLevel },
+      { id: Date.now(), name, type: newType, level: newLevel },
     ]);
+    addLog("ADD_ENTITY", `Added ${newType} "${name}" at level ${newLevel}`);
     setNewName("");
   }
 
-  // NEW: Delete Entity Function
   function deleteEntity(id) {
+    const entity = entities.find((e) => e.id === id);
+    if (!entity) return;
+
     const updated = entities.filter((e) => e.id !== id);
     setEntities(updated);
 
-    // If we deleted the selected subject, reset to the first available one
+    addLog("DELETE_ENTITY", `Deleted ${entity.type} "${entity.name}" (Level: ${entity.level})`);
+
     if (subjectId === id) {
       const remainingSubjects = updated.filter((e) => e.type === "subject");
       setSubjectId(remainingSubjects[0]?.id ?? null);
     }
-    // If we deleted the selected object, reset to the first available one
     if (objectId === id) {
       const remainingObjects = updated.filter((e) => e.type === "object");
       setObjectId(remainingObjects[0]?.id ?? null);
     }
+  }
+
+  function handleMoveEntity(id, newLevel) {
+    const entity = entities.find((e) => e.id === id);
+    if (!entity || entity.level === newLevel) return;
+
+    setEntities((es) => es.map((e) => (e.id === id ? { ...e, level: newLevel } : e)));
+    addLog("MOVE_ENTITY", `Moved ${entity.type} "${entity.name}" from ${entity.level} to ${newLevel}`);
+  }
+
+  function handleRuleToggle(key, checked) {
+    setRules((r) => ({ ...r, [key]: checked }));
+    addLog("TOGGLE_RULE", `${checked ? "Enabled" : "Disabled"} rule: "${key}"`);
+  }
+
+  // --- CSV Log Download ---
+  function downloadLog() {
+    if (log.length === 0) return;
+
+    const header = "Timestamp,Action,Details,Allowed\n";
+    const rows = log.map((l) => {
+      const allowedStr = l.allowed === null ? "N/A" : l.allowed ? "YES" : "NO";
+      const safeDetails = `"${l.details.replace(/"/g, '""')}"`; // Escape quotes for CSV
+      return `${l.ts},${l.action},${safeDetails},${allowedStr}`;
+    }).join("\n");
+
+    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `access-control-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   const subjects = entities.filter((e) => e.type === "subject");
@@ -145,10 +197,8 @@ export default function AccessPanel({
                 levels={levels}
                 entities={entities}
                 colors={colors}
-                onMove={(id, level) =>
-                    setEntities((es) => es.map((e) => (e.id === id ? { ...e, level } : e)))
-                }
-                onDelete={deleteEntity} // Pass the delete function down
+                onMove={handleMoveEntity}
+                onDelete={deleteEntity}
             />
 
             {showMatrix && (
@@ -164,7 +214,7 @@ export default function AccessPanel({
             <div className={`card-padded flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
               <div>
                 <p className="text-sm font-semibold text-slate-200">{rulesDescription.title}</p>
-                <p className="mt-1 text-sm text-slate-300">{rulesDescription.body}</p>
+                <p className="mt-1 text-sm text-slate-400">{rulesDescription.body}</p>
               </div>
               <div className={`rounded-xl px-3 py-2 text-xs font-medium ${accentSoft}`}>
                 {rulesDescription.badge}
@@ -182,7 +232,7 @@ export default function AccessPanel({
                       <input
                           type="checkbox"
                           checked={rules[k]}
-                          onChange={(e) => setRules((r) => ({ ...r, [k]: e.target.checked }))}
+                          onChange={(e) => handleRuleToggle(k, e.target.checked)}
                           className={`h-4 w-4 rounded ${accentCheckbox}`}
                       />
                     </label>
@@ -277,27 +327,37 @@ export default function AccessPanel({
               <button onClick={addEntity} className={`w-full ${accentBtn}`}>+ Add entity</button>
             </div>
 
+            {/* --- Unified Activity Log --- */}
             <div className="card-padded">
-              <p className="section-label mb-3">Access Log</p>
-              <div className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
-                {log.length === 0 && <p className="text-xs text-slate-300">No requests yet.</p>}
-                {log.map((l, i) => (
-                    <div
-                        key={i}
-                        className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs ${
-                            l.allowed
-                                ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
-                                : "bg-rose-500/10 text-rose-300 border border-rose-500/20"
-                        }`}
-                    >
-                  <span>
-                    <span className="text-slate-300">{l.ts}</span>{" "}
-                    <span className="font-medium text-slate-100">{l.subject}</span> {l.op}s{" "}
-                    <span className="font-medium text-slate-100">{l.object}</span>
-                  </span>
-                      <span className="font-semibold">{l.allowed ? "✓" : "✗"}</span>
-                    </div>
-                ))}
+              <div className="flex items-center justify-between mb-3">
+                <p className="section-label">Activity Log</p>
+                <button
+                    onClick={downloadLog}
+                    disabled={log.length === 0}
+                    className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Download CSV
+                </button>
+              </div>
+              <div className="max-h-56 space-y-1.5 overflow-y-auto pr-1">
+                {log.length === 0 && <p className="text-xs text-slate-500">No activity yet.</p>}
+                {log.map((l) => {
+                  const styles = l.allowed === null
+                      ? "bg-slate-800/50 text-slate-300 border border-slate-700"
+                      : l.allowed
+                          ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                          : "bg-rose-500/10 text-rose-300 border border-rose-500/20";
+
+                  return (
+                      <div key={l.id} className={`flex flex-col gap-0.5 rounded-lg px-2.5 py-2 text-xs ${styles}`}>
+                        <div className="flex justify-between items-center text-[10px] opacity-70">
+                          <span>{l.ts}</span>
+                          <span className="font-mono">{l.action}</span>
+                        </div>
+                        <span className="font-medium leading-tight">{l.details}</span>
+                      </div>
+                  );
+                })}
               </div>
             </div>
           </div>
