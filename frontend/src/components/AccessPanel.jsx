@@ -166,12 +166,15 @@ export default function AccessPanel({
                 ))}
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button onClick={() => checkAccess("read")} className={accentBtn}>
                 <ReadIcon /> Read
               </button>
               <button onClick={() => checkAccess("write")} className="btn-secondary">
                 <WriteIcon /> Write
+              </button>
+              <button onClick={() => checkAccess("execute")} className="btn-secondary">
+                <ExecIcon /> Execute
               </button>
             </div>
           </div>
@@ -256,10 +259,18 @@ function ReadIcon() {
 
 function WriteIcon() {
   return (
-    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 20h9" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-        d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z" />
-    </svg>
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 20h9"/>
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+              d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
   );
 }
+  function ExecIcon() {
+    return (
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+    );
+  }
