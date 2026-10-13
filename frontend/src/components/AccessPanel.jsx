@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import axios from "axios";
 import Lattice from "./Lattice";
+import MatrixView from "./MatrixView";
 
 const API = "https://access-control-viz.onrender.com";
 
@@ -28,6 +29,7 @@ export default function AccessPanel({
   const [newName, setNewName] = useState("");
   const [newLevel, setNewLevel] = useState(levels[Math.floor(levels.length / 2)]);
   const [newType, setNewType] = useState("subject");
+  const [showMatrix, setShowMatrix] = useState(false); // New state for matrix
 
   // Dark mode friendly accent classes
   const accentRing = accent === "blue" ? "focus:ring-blue-500/30" : "focus:ring-indigo-500/30";
@@ -81,9 +83,17 @@ export default function AccessPanel({
 
   return (
       <div className="space-y-6">
-        <header>
-          <h2 className="text-2xl font-semibold tracking-tight text-white">{title}</h2>
-          <p className="mt-1 max-w-2xl text-sm text-slate-300">{description}</p>
+        <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight text-white">{title}</h2>
+            <p className="mt-1 max-w-2xl text-sm text-slate-300">{description}</p>
+          </div>
+          <button
+              onClick={() => setShowMatrix(!showMatrix)}
+              className={`shrink-0 text-sm ${showMatrix ? 'btn-secondary' : 'btn-primary'}`}
+          >
+            {showMatrix ? "Hide Matrix" : "Generate Matrix"}
+          </button>
         </header>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -114,6 +124,17 @@ export default function AccessPanel({
                 }
             />
 
+            {/* Render the Matrix below the Lattice */}
+            {showMatrix && (
+                <MatrixView
+                    model={model}
+                    subjects={subjects}
+                    objects={objects}
+                    rules={rules}
+                    levels={levels}
+                />
+            )}
+
             <div className={`card-padded flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
               <div>
                 <p className="text-sm font-semibold text-slate-200">{rulesDescription.title}</p>
@@ -131,7 +152,7 @@ export default function AccessPanel({
               <div className="space-y-3">
                 {rulesConfig.map(([k, label]) => (
                     <label key={k} className="flex cursor-pointer items-center justify-between gap-3 text-sm">
-                      <span className="text-slate-300">{label}</span>
+                      <span className="text-slate-200">{label}</span>
                       <input
                           type="checkbox"
                           checked={rules[k]}
@@ -195,7 +216,7 @@ export default function AccessPanel({
                   <p className={`mb-1 text-base font-semibold ${result.allowed ? "text-emerald-400" : "text-rose-400"}`}>
                     {result.allowed ? "Access granted" : "Access denied"}
                   </p>
-                  <p className="text-slate-300">{result.subject} → {result.op} → {result.object}</p>
+                  <p className="text-slate-200">{result.subject} → {result.op} → {result.object}</p>
                   <p className="mt-1 text-xs text-slate-300">{result.reason}</p>
                 </div>
             )}
@@ -241,8 +262,8 @@ export default function AccessPanel({
                     >
                   <span>
                     <span className="text-slate-300">{l.ts}</span>{" "}
-                    <span className="font-medium text-slate-200">{l.subject}</span> {l.op}s{" "}
-                    <span className="font-medium text-slate-200">{l.object}</span>
+                    <span className="font-medium text-slate-100">{l.subject}</span> {l.op}s{" "}
+                    <span className="font-medium text-slate-100">{l.object}</span>
                   </span>
                       <span className="font-semibold">{l.allowed ? "✓" : "✗"}</span>
                     </div>
@@ -275,6 +296,7 @@ function WriteIcon() {
       </svg>
   );
 }
+
 function ExecIcon() {
   return (
       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
